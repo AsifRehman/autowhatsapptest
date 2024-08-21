@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Automation</title>
+</head>
+<body>
+    <h1>WhatsApp Automation</h1>
+
+    <button id="initializeButton">Initialize WhatsApp</button>
+    <p id="initializeStatus"></p>
+
+    <h2>Send WhatsApp Message</h2>
+    <form id="messageForm">
+        <label for="contactName">Contact Name:</label>
+        <input type="text" id="contactName" name="contactName" required><br><br>
+
+        <label for="mobileNumber">Mobile Number:</label>
+        <input type="text" id="mobileNumber" name="mobileNumber" required><br><br>
+
+        <label for="message">Message (separate lines with a pipe |):</label><br>
+        <textarea id="message" name="message" rows="5" cols="40" required></textarea><br><br>
+
+        <button type="submit">Send Message</button>
+    </form>
+
+    <script>
+        document.getElementById('initializeButton').addEventListener('click', async () => {
+            const response = await fetch('/initialize', { method: 'POST' });
+            const result = await response.text();
+            document.getElementById('initializeStatus').innerText = result;
+        });
+
+        document.getElementById('messageForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const contactName = document.getElementById('contactName').value;
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            const message = document.getElementById('message').value;
+            const messageArray = message.split('|').map(line => line.trim());
+
+            const response = await fetch('/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ contactName, mobileNumber, messageArray })
+            });
+
+            const result = await response.text();
+            alert(result);
+        });
+    </script>
+</body>
+</html>
