@@ -8,8 +8,13 @@
 <body>
     <h1>WhatsApp Automation</h1>
 
+    <!-- Initialize WhatsApp Button -->
     <button id="initializeButton">Initialize WhatsApp</button>
     <p id="initializeStatus"></p>
+
+    <!-- Cleanup Browser Button -->
+    <button id="cleanupButton">Cleanup Browser</button>
+    <p id="cleanupStatus"></p>
 
     <h2>Send WhatsApp Message</h2>
     <form id="messageForm">
@@ -26,12 +31,21 @@
     </form>
 
     <script>
+        // Initialize WhatsApp
         document.getElementById('initializeButton').addEventListener('click', async () => {
             const response = await fetch('/initialize', { method: 'POST' });
             const result = await response.text();
             document.getElementById('initializeStatus').innerText = result;
         });
 
+        // Cleanup Browser
+        document.getElementById('cleanupButton').addEventListener('click', async () => {
+            const response = await fetch('/cleanup', { method: 'POST' });
+            const result = await response.text();
+            document.getElementById('cleanupStatus').innerText = result;
+        });
+
+        // Send WhatsApp Message
         document.getElementById('messageForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 

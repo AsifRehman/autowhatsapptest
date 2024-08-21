@@ -6,6 +6,7 @@ const app = express();
 const port = 5000;
 
 let browser, context, page;
+let isLoggedIn = false;
 
 // Middleware
 app.use(express.static('public'));
@@ -20,13 +21,14 @@ app.get('/', (req, res) => {
 // Initialize WhatsApp
 app.post('/initialize', async (req, res) => {
     try {
-        if (!browser) {
+        if (!isLoggedIn) {
             browser = await chromium.launch({ headless: false });
             context = await browser.newContext();
             page = await context.newPage();
             await page.goto('https://web.whatsapp.com');
-            await page.waitForSelector('#app', { timeout: 60000 });
+            await page.waitForSelector("//*[@id='side']/div[1]/div/div[2]/div[2]/div/div[1]/p", { timeout: 60000 });
             res.send('WhatsApp initialized successfully. You can now send messages.');
+            isLoggedIn = true;
         } else {
             res.send('WhatsApp is already initialized.');
         }
@@ -50,6 +52,25 @@ app.post('/send', async (req, res) => {
     } catch (error) {
         console.error('Error sending message:', error);
         res.status(500).send('Failed to send message.');
+    }
+});
+
+// Cleanup browser and reset state
+app.post('/cleanup', async (req, res) => {
+    try {
+        if (browser) {
+            await browser.close();
+            browser = null;
+            context = null;
+            page = null;
+            isLoggedIn = false;
+            res.send('Browser cleaned up successfully.');
+        } else {
+            res.send('No active browser instance to clean up.');
+        }
+    } catch (error) {
+        console.error('Error cleaning up browser:', error);
+        res.status(500).send('Failed to clean up browser.');
     }
 });
 
